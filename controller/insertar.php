@@ -4,7 +4,8 @@ include('../conexion.php');
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Validamos que se reciban los datos
     if (isset($_POST['nombre'], $_POST['precio'], $_POST['existencia'])) {
-        $nombre = $_POST['nombre'];
+        //pasar a mayusulas
+        $nombre = strtoupper($_POST['nombre']);
         $precio = $_POST['precio'];
         $existencia = $_POST['existencia'];
         

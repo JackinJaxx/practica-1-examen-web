@@ -29,7 +29,8 @@ if (!isset($_SESSION['login'])) {
 
     <form action="dashboard.php" method="GET">
         <div class="formpanel" id="f1">
-            <b>Buscar producto por precio mayor a:</b> <input type="text" name="pre" size="4">
+            <b>Buscar producto por precio mayor a:</b>
+			<input type="number" name="pre" size="4" step="0.01">
             <button class="btn btn-primary" type="submit">Buscar</button>
         </div>
     </form>
@@ -52,12 +53,13 @@ $con = $db->getConnection();
 // Preparación de la consulta, con un valor por defecto para "pre"
 if (isset($_GET['pre']) && is_numeric($_GET['pre'])) {
     $precio = $_GET['pre'];
+    // Consulta para buscar productos con precio mayor al indicado
     $stmt = mysqli_prepare($con, "SELECT id, nombre, precio FROM productos WHERE precio > ?");
-    mysqli_stmt_bind_param($stmt, "d", $precio);  // "d" indica que estamos esperando un double
+    mysqli_stmt_bind_param($stmt, "d", $precio);
 } else {
+    // Consulta por defecto que muestra todos los productos
     $stmt = mysqli_prepare($con, "SELECT id, nombre, precio FROM productos");
 }
-
 // Ejecutamos la consulta y mostramos los resultados
 mysqli_stmt_execute($stmt);
 $resultado = mysqli_stmt_get_result($stmt);
@@ -74,7 +76,11 @@ while ($fila = mysqli_fetch_assoc($resultado)) {
     echo "<tr>";
     echo "<td>".$fila['nombre']."</td>";
     echo "<td>".$fila['precio']."</td>";
-    echo "<td><a href='#' class='eliminar' data-id='".$fila['id']."'><img src='iconoeliminar.png' width='20' height='20'></a></td>";
+    echo "<td>
+	 <a href='#' class='editar' data-id='".$fila['id']."'>
+                <img src='assets/icons/editar.svg' width='20' height='20'>
+            </a>
+	<a href='#' class='eliminar' data-id='".$fila['id']."'><img src='iconoeliminar.png' width='20' height='20'></a></td>";
     echo "</tr>";
 }
 
@@ -118,6 +124,38 @@ $db->closeConnection();
     </div>
 </div>
 
+<!-- Modal para editar producto -->
+<div class="modal fade" id="editarProductoModal" tabindex="-1" aria-labelledby="editarProductoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editarProductoLabel">Editar producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editarProductoForm">
+                    <input type="hidden" id="editarIdProducto" name="id">
+                    <div class="mb-3">
+                        <label for="editarNombreProducto" class="form-label">Nombre del producto</label>
+                        <input type="text" class="form-control" id="editarNombreProducto" name="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editarPrecioProducto" class="form-label">Precio</label>
+                        <input type="number" step="0.01" class="form-control" id="editarPrecioProducto" name="precio" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editarExistenciaProducto" class="form-label">Existencia</label>
+                        <input type="number" class="form-control" id="editarExistenciaProducto" name="stock" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="actualizarProductoBtn">Actualizar</button>
+            </div>
+        </div>
+    </div>
+</div>
 </center>
 
 <!-- Footer -->
@@ -130,9 +168,38 @@ $db->closeConnection();
 <script>
 $(document).ready(function() {
 
-	// Actualizar producto
+	$('.editar').click(function(e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        
+        // Hacer la solicitud AJAX para obtener los datos del producto
+        $.ajax({
+            url: 'controller/obtener_producto.php',
+            type: 'GET',
+            data: { id: id },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    // Llenar los campos del modal con los datos obtenidos
+                    $('#editarIdProducto').val(response.data.id);
+                    $('#editarNombreProducto').val(response.data.nombre);
+                    $('#editarPrecioProducto').val(response.data.precio);
+                    $('#editarExistenciaProducto').val(response.data.stock);
+                    
+                    // Mostrar el modal
+                    $('#editarProductoModal').modal('show');
+                } else {
+                    alert('Error al obtener los datos del producto');
+                }
+            },
+            error: function() {
+                alert('Error en la solicitud');
+            }
+        });
+    });
+    // Actualizar producto
     $('#actualizarProductoBtn').click(function() {
-        // Envío AJAX
+        // Envío AJAX para actualizar
         $.ajax({
             url: 'controller/editar.php',
             type: 'POST',
