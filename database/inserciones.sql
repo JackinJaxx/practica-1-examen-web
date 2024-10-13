@@ -9,6 +9,6 @@ INSERT INTO `productos` (`id`, `nombre`, `precio`, `stock`) VALUES
 
 -- Se recomienda almacenar las contraseñas encriptadas (usaremos bcrypt más adelante)
 INSERT INTO `usuarios` (`id`, `nombre_usuario`,`nombre_completo`, `password`, `nivel_usuario`) VALUES
-(1, 'jefeventas', 'Juan Pérez', '123456', 1),
-(2, 'vendedor1', 'María López', '123456', 2),
-(3, 'vendedor2', 'Pedro Ramírez','123456', 2);
+(1, 'jefeventas', 'Juan Perez', '123456', 1),
+(2, 'vendedor1', 'Maria Lopez', '123456', 2),
+(3, 'vendedor2', 'Pedro Ramirez','123456', 2);

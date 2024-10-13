@@ -80,7 +80,7 @@ while ($fila = mysqli_fetch_assoc($resultado)) {
 	 <a href='#' class='editar' data-id='".$fila['id']."'>
                 <img src='assets/icons/editar.svg' width='20' height='20'>
             </a>
-	<a href='#' class='eliminar' data-id='".$fila['id']."'><img src='iconoeliminar.png' width='20' height='20'></a></td>";
+	<a href='#' class='eliminar' data-id='".$fila['id']."'><img src='assets/icons/eliminar.svg' width='20' height='20'></a></td>";
     echo "</tr>";
 }
 
